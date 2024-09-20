@@ -1,5 +1,10 @@
 return {
   {
+    'lervag/vimtex',
+    lazy = false,
+    init = function() end,
+  },
+  {
     'quarto-dev/quarto-nvim',
     dependencies = {
       'jmbuhr/otter.nvim',
