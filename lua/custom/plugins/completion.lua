@@ -1,6 +1,14 @@
 return {
 
   {
+    'windwp/nvim-autopairs',
+    config = function()
+      require('nvim-autopairs').setup {}
+      require('nvim-autopairs').remove_rule '`'
+    end,
+  },
+
+  {
     'R-nvim/cmp-r',
   },
 
@@ -9,6 +17,18 @@ return {
     event = 'InsertEnter',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
+
+      'hrsh7th/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-calc',
+      'hrsh7th/cmp-emoji',
+      'f3fora/cmp-spell',
+      'ray-x/cmp-treesitter',
+      'kdheepak/cmp-latex-symbols',
+      'jmbuhr/cmp-pandoc-references',
+      'rafamadriz/friendly-snippets',
+      'onsails/lspkind-nvim', -- Adds VSCode-like pictogram
+      'jmbuhr/otter.nvim',
       {
         'L3MON4D3/LuaSnip',
         build = (function()
@@ -43,8 +63,9 @@ return {
     config = function()
       -- See `:help cmp`
       local cmp = require 'cmp'
-      -- local cmp_r = require 'cmp-r' -- can be found in custom.plugins.lsp.r
+      local lspkind = require 'lspkind'
       local luasnip = require 'luasnip'
+
       luasnip.config.setup {}
 
       cmp.setup {
@@ -110,18 +131,88 @@ return {
           -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
+        autocomplete = false,
+
+        ---@diagnostic disable-next-line: missing-fields
+        formatting = {
+          format = lspkind.cmp_format {
+            mode = 'symbol',
+            menu = {
+              otter = '[🦦]',
+              nvim_lsp = '[LSP]',
+              nvim_lsp_signature_help = '[sig]',
+              luasnip = '[snip]',
+              buffer = '[buf]',
+              path = '[path]',
+              spell = '[spell]',
+              pandoc_references = '[ref]',
+              tags = '[tag]',
+              treesitter = '[TS]',
+              calc = '[calc]',
+              latex_symbols = '[tex]',
+              emoji = '[emoji]',
+            },
+          },
+        },
         sources = {
           {
             name = 'lazydev',
             -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
             group_index = 0,
           },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
           { name = 'cmp_r' },
+          { name = 'path' },
+          { name = 'nvim_lsp_signature_help' },
+          { name = 'nvim_lsp' },
+          { name = 'luasnip', keyword_length = 3, max_item_count = 3 },
+          { name = 'pandoc_references' },
+          { name = 'buffer', keyword_length = 5, max_item_count = 3 },
+          { name = 'spell' },
+          { name = 'treesitter', keyword_length = 5, max_item_count = 3 },
+          { name = 'calc' },
+          { name = 'latex_symbols' },
+          { name = 'emoji' },
           { name = 'latex_symbols', option = { strategy = 0 } },
         },
+        view = {
+          entries = 'native',
+        },
+        window = {
+          documentation = {
+            border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+          },
+        },
+      }
+
+      -- for friendly snippets
+      require('luasnip.loaders.from_vscode').lazy_load()
+      -- for custom snippets
+      require('luasnip.loaders.from_vscode').lazy_load { paths = { vim.fn.stdpath 'config' .. '/snips' } }
+      -- link quarto and rmarkdown to markdown snippets
+      luasnip.filetype_extend('quarto', { 'markdown' })
+      luasnip.filetype_extend('rmarkdown', { 'markdown' })
+    end,
+  },
+
+  { -- gh copilot
+    'zbirenbaum/copilot.lua',
+    enabled = true,
+    config = function()
+      require('copilot').setup {
+        suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          debounce = 75,
+          keymap = {
+            accept = '<c-a>',
+            accept_word = false,
+            accept_line = false,
+            next = '<M-]>',
+            prev = '<M-[>',
+            dismiss = '<C-]>',
+          },
+        },
+        panel = { enabled = false },
       }
     end,
   },
