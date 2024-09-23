@@ -247,6 +247,23 @@ return {
         filetypes = { 'markdown', 'quarto' },
         root_dir = util.root_pattern('.git', '.marksman.toml', '_quarto.yml'),
       }
+      
+      lspconfig.nil_ls.setup {
+        autostart = true,
+        capabilities = capabilities,
+        cmd = { vim.env.NIL_PATH or 'target/debug/nil' },
+        filetypes = { 'nix' },
+        rootPatterns = { 'flake.nix' },
+        flags = lsp_flags,
+        settings = {
+          [ 'nil' ] = {
+            testSetting = 42,
+            formatting = {
+              command = { 'nixfmt' } 
+            }
+          }
+        }
+      }
 
       lspconfig.cssls.setup {
         capabilities = capabilities,
